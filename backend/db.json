@@ -1,0 +1,88 @@
+{
+	"users": [
+		{
+			"user_id": 1,
+			"name": "John Doe",
+			"email": "john.doe@example.com",
+			"created_at": "2026-09-01T09:00:00"
+		},
+		{
+			"user_id": 2,
+			"name": "Erik Mayes",
+			"email": "Emayes@example.com",
+			"created_at": "2026-09-02T10:15:00"
+		},
+		{
+			"user_id": 3,
+			"name": "Jackie Chan",
+			"email": "JChan@example.com",
+			"created_at": "2026-09-03T11:30:00"
+		},
+		{
+			"user_id": 4,
+			"name": "Micheal Jackson",
+			"email": "MJ@yahoo.com",
+			"created_at": "2026-09-04T14:45:00"
+		}
+	],
+	"accounts": [
+		{
+			"account_id": 1,
+			"user_id": 1,
+			"balance": 1250.00,
+			"account_type": "CHECKING",
+			"created_at": "2026-09-01T09:05:00"
+		},
+		{
+			"account_id": 2,
+			"user_id": 2,
+			"balance": 800.50,
+			"account_type": "SAVINGS",
+			"created_at": "2026-09-02T10:20:00"
+		},
+		{
+			"account_id": 3,
+			"user_id": 3,
+			"balance": 425.75,
+			"account_type": "CHECKING",
+			"created_at": "2026-09-03T11:35:00"
+		},
+		{
+			"account_id": 4,
+			"user_id": 4,
+			"balance": 2100.00,
+			"account_type": "SAVINGS",
+			"created_at": "2026-09-04T14:50:00"
+		}
+	],
+	"transactions": [
+		{
+			"txn_id": 1,
+			"account_id": 1,
+			"txn_type": "DEPOSIT",
+			"amount": 1250.00,
+			"created_at": "2026-09-01T09:10:00"
+		},
+		{
+			"txn_id": 2,
+			"account_id": 2,
+			"txn_type": "DEPOSIT",
+			"amount": 800.50,
+			"created_at": "2026-09-02T10:25:00"
+		},
+		{
+			"txn_id": 3,
+			"account_id": 3,
+			"txn_type": "WITHDRAW",
+			"amount": 50.00,
+			"created_at": "2026-09-03T11:40:00"
+		},
+		{
+			"txn_id": 4,
+			"account_id": 4,
+			"txn_type": "WITHDRAW",
+			"amount": 2200.00,
+			"created_at": "2026-09-04T14:55:00"
+		}
+	]
+}

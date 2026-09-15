@@ -1,0 +1,12 @@
+[project]
+name = "bank-app-backend"
+version = "0.1.0"
+description = "FastAPI backend for bank-app"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi[standard]>=0.141.1,<0.142",
+]
+
+[tool.fastapi]
+entrypoint = "main:app"
