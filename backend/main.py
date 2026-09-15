@@ -5,6 +5,7 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+db = DB()
 
 @app.get("/")
 async def root():
