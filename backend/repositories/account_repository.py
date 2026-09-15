@@ -1,4 +1,3 @@
-(No previous content)
 from datetime import datetime
 
 from .fake_database import FakeDatabase
