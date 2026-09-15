@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Path
 
-from account_service import AccountNotFound, AccountService
+from services.account_services import AccountNotFound, AccountService
 from schemas import Account, AmountRequest, CreateAccountRequest, Transaction
 
 router = APIRouter(prefix="/api/accounts", tags=["Accounts"])

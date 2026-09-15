@@ -1,13 +1,11 @@
 from fastapi import FastAPI
-from .models import Base, Engine
 
-Base.metadata.create_all(bind=engine)
+from router.accounts import router as accounts_router
 
 app = FastAPI()
+app.include_router(accounts_router)
 
-db = DB()
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
-
