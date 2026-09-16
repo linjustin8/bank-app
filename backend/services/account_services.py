@@ -79,3 +79,10 @@ class AccountService:
             )
             for transaction in transactions
         ]
+        
+    def  deleteAccount(self, accountId):
+        account = self.getAccount(accountId)
+        if account.balance != 0:
+            raise AccountValueNotZero
+        self.account_repo.delete(accountId)
+        
