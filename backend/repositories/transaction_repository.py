@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from .fake_database import FakeDatabase
+from .mongo_database import MongoDatabase
 
 
 class TransactionRepository:
     def __init__(self):
-        self.database = FakeDatabase()
+        self.database = MongoDatabase()
 
     def get_by_id(self, transaction_id: int) -> dict | None:
         data = self.database.read()
