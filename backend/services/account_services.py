@@ -11,9 +11,6 @@ class AccountNotFound(Exception):
 
 class InsufficientFunds(ValueError):
     """The account balance cannot cover a withdrawal."""
-    
-class AccountValueNotZero(ValueError):
-    """The account balance must be 0 before deletion."""
 
 
 class AccountService:
