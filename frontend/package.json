@@ -28,7 +28,7 @@
     "@react-router/dev": "7.15.1",
     "@tailwindcss/vite": "^4",
     "@types/node": "^22",
-    "@types/react": "^19",
+    "@types/react": "^19.3.0",
     "@types/react-dom": "^19",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
