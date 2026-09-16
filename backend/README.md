@@ -6,6 +6,7 @@ If uv not already installed
 
 ```sh
 python -m pip install uv
+python -m pip install "pymongo[srv]" python-dotenv
 ```
 
 After:
