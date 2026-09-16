@@ -54,8 +54,6 @@ class AccountRepository:
 
 	def delete(self, account_id: int) -> dict | None:
 		data = self.database.read()
-		if any(transaction["account_id"] == account_id for transaction in data["transactions"]):
-			raise ValueError("Cannot delete an account that has transactions.")
 
 		for index, account in enumerate(data["accounts"]):
 			if account["account_id"] == account_id:
