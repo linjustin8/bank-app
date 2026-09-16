@@ -11,6 +11,9 @@ class AccountNotFound(Exception):
 
 class InsufficientFunds(ValueError):
     """The account balance cannot cover a withdrawal."""
+    
+class AccountValueNotZero(ValueError):
+    """The account balance must be 0 before deletion."""
 
 
 class AccountService:
@@ -79,3 +82,10 @@ class AccountService:
             )
             for transaction in transactions
         ]
+        
+    def  deleteAccount(self, accountId):
+        account = self.getAccount(accountId)
+        if account.balance != 0:
+            raise AccountValueNotZero
+        self.account_repo.delete(accountId)
+        

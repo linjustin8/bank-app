@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 
 from .mongo_database import MongoDatabase
 
@@ -53,12 +54,44 @@ class UserRepository:
 
 	def delete(self, user_id: int) -> dict | None:
 		data = self.database.read()
-		if any(account["user_id"] == user_id for account in data["accounts"]):
-			raise ValueError("Cannot delete a user who has accounts.")
+		user = next(
+			(user for user in data["users"] if user["user_id"] == user_id),
+			None,
+		)
+		if user is None:
+			return None
 
-		for index, user in enumerate(data["users"]):
-			if user["user_id"] == user_id:
-				deleted_user = data["users"].pop(index)
-				self.database.write(data)
-				return deleted_user
-		return None
+		user_accounts = [
+			account for account in data["accounts"]
+			if account["user_id"] == user_id
+		]	
+
+		if any (Decimal(str(account["balance"])) != 0 for account in user_accounts):
+			raise ValueError("Cannot delete a user who has accounts with non-zero balance.")
+
+		data["users"].remove(user)
+		self.database.write(data)
+		return user;	
+
+	# def delete(self, user_id: int) -> dict | None:
+	# 	data = self.database.read()
+	# 	if any(account["user_id"] == user_id for account in data["accounts"]):
+	# 		raise ValueError("Cannot delete a user who has accounts.")
+
+	# 	for index, user in enumerate(data["users"]):
+	# 		if user["user_id"] == user_id:
+	# 			deleted_user = data["users"].pop(index)
+	# 			self.database.write(data)
+	# 			return deleted_user
+	# 	return None
+
+	# def deleteUser(self, user_id: int) -> dict | None:
+	# 	data = self.database.read()
+	# 	for index, user in enumerate(data["users"]):
+	# 		if user["user_id"] == user_id:
+	# 			deleted_user = data["users"].pop(index)
+	# 			self.database.write(data)
+	# 			return deleted_user
+	# 	return None
+
+
