@@ -1,9 +1,11 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Path
 
+# Extraneous imports from the account router; this users router does not use them.
 from services.account_services import AccountNotFound, AccountService
 from services.user_services import UserNotFound, UserService
-from schemas import User, Account, AmountRequest, CreateAccountRequest, Transaction, CreateUserRequest
+# Account and transaction schemas are only needed if the related routes are enabled here.
+from schemas import UpdateUserRequest, User, Account, AmountRequest, CreateAccountRequest, Transaction, CreateUserRequest
 
 router = APIRouter(prefix="/api/users", tags=["Users"])
 _service = UserService()
@@ -44,7 +46,13 @@ def get_user(id: UserId, service: Service):
 def create_account(id: UserId, body: CreateAccountRequest, service: Service):
     return call_service(service.createAccount, id, body.accountType)
 
-# #Transaction history: GET /api/accounts/{id}/transactions 
-# @router.get("/{id}/transactions", response_model=list[Transaction])
-# def get_transactions(id: AccountId, service: Service):
-#     return call_service(service.getTransactions, id)
+#update user account details
+@router.patch("/{id}", response_model=User)
+def update_user(id: UserId, body: UpdateUserRequest, service: Service):
+    return call_service(service.updateUser, id, body.name, body.email)
+
+#delete user account
+@router.delete("/{id}", response_model=User)
+def delete_user(id: UserId, service: Service):
+    return call_service(service.deleteUser, id)
+

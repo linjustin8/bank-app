@@ -41,3 +41,13 @@ class User(BaseModel):
 class CreateUserRequest(BaseModel):
     name: str
     email: str
+
+#user update request schema
+class UpdateUserRequest(BaseModel):
+    name: str | None = None
+    email: str | None = None
+
+# # Extraneous schema: DELETE /api/users/{id} gets the ID from the path.
+# class DeleteUserRequest(BaseModel):
+#     user_id: int
+
