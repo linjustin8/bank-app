@@ -1,16 +1,22 @@
 import { Button } from "~/components/ui/button"
+import NavBar from "~/components/navBar"
 
 export default function Home() {
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
+    <div className="flex min-h-screen flex-col">
+      <NavBar />
+
+      <main className="flex-1 bg-[#98BCEE]">
+        <div className="mx-auto max-w-6xl px-6 py-12">
+          <h1 className="text-3xl font-bold">
+            Banking made simple.
+          </h1>
+
+          <section id="services" className="mt-12">
+            <h2 className="text-2xl font-semibold">Our services</h2>
+          </section>
         </div>
-      </div>
+      </main>
     </div>
   )
 }
