@@ -54,3 +54,8 @@ def withdraw(id: AccountId, body: AmountRequest, service: Service):
 @router.get("/{id}/transactions", response_model=list[Transaction])
 def get_transactions(id: AccountId, service: Service):
     return call_service(service.getTransactions, id)
+
+# Deletes the user account with accountId = id
+@router.delete("/{id}", status_code=204)
+def delete_account(id: AccountId, service: Service):
+    call_service(service.deleteAccount, id)
