@@ -2,7 +2,6 @@ from app.db import database
 
 
 class MongoDatabase:
-    """Small compatibility adapter for the existing repository interfaces."""
 
     # These collection names match the data groups used by the repositories.
     collection_names = ("users", "accounts", "transactions")
