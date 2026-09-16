@@ -29,3 +29,15 @@ class Transaction(BaseModel):
     type: Literal["DEPOSIT", "WITHDRAWAL"]
     amount: Decimal
     createdAt: datetime
+
+
+##User schemas
+class User(BaseModel):
+    user_id: int
+    name: str
+    email: str
+    created_at: datetime
+
+class CreateUserRequest(BaseModel):
+    name: str
+    email: str
