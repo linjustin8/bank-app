@@ -5,10 +5,14 @@ from dataclasses import dataclass
 from typing import Annotated
 
 import httpx
+from clerk_backend_api import Clerk
 from clerk_backend_api.security import AuthenticateRequestOptions, authenticate_request
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import InvalidTokenError
+
+from schemas import User
+from services.user_services import UserNotFound, UserService
 
 
 @dataclass(frozen=True)
@@ -64,3 +68,37 @@ def get_clerk_identity(request: Request, credentials: Annotated[HTTPAuthorizatio
 
 
 CurrentClerkIdentity = Annotated[ClerkIdentity, Depends(get_clerk_identity)]
+
+
+def _fetch_clerk_profile(clerk_user_id: str) -> tuple[str, str]:
+    secret_key = os.getenv("CLERK_SECRET_KEY")
+    if not secret_key:
+        raise HTTPException(status_code=503, detail="Clerk authentication is not configured")
+
+    with Clerk(bearer_auth=secret_key) as clerk:
+        profile = clerk.users.get(user_id=clerk_user_id)
+
+    email = next((
+            address.email_address
+            for address in profile.email_addresses
+            if address.id == profile.primary_email_address_id
+        ),
+        profile.email_addresses[0].email_address if profile.email_addresses else None,
+    )
+    if not email:
+        raise HTTPException(status_code=502, detail="Clerk user has no email address on file")
+
+    name = " ".join(part for part in (profile.first_name, profile.last_name) if part) or email
+    return name, email
+
+
+def get_current_user(identity: CurrentClerkIdentity) -> User:
+    service = UserService()
+    try:
+        return service.getUserByClerkId(identity.clerk_user_id)
+    except UserNotFound:
+        name, email = _fetch_clerk_profile(identity.clerk_user_id)
+        return service.getOrCreateByClerkId(identity.clerk_user_id, name, email)
+
+
+CurrentUser = Annotated[User, Depends(get_current_user)]

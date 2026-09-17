@@ -21,6 +21,7 @@ class UserService:
     def _user_response(user: dict) -> User:
         return User(
             user_id=user["user_id"],
+            clerk_user_id=user.get("clerk_user_id"),
             name=user["name"],
             email=user["email"],
             created_at=user["created_at"],
@@ -34,6 +35,18 @@ class UserService:
         user = self.user_repo.get_by_id(userId)
         if user is None:
             raise UserNotFound("User not found")
+        return self._user_response(user)
+
+    def getUserByClerkId(self, clerkUserId: str) -> User:
+        user = self.user_repo.get_by_clerk_id(clerkUserId)
+        if user is None:
+            raise UserNotFound("User not found")
+        return self._user_response(user)
+
+    def getOrCreateByClerkId(self, clerkUserId: str, name: str, email: str) -> User:
+        user = self.user_repo.get_by_clerk_id(clerkUserId)
+        if user is None:
+            user = self.user_repo.create(name, email, clerk_user_id=clerkUserId)
         return self._user_response(user)
 
     @staticmethod

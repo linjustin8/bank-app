@@ -34,6 +34,7 @@ class Transaction(BaseModel):
 ##User schemas
 class User(BaseModel):
     user_id: int
+    clerk_user_id: str | None = None
     name: str
     email: str
     created_at: datetime
