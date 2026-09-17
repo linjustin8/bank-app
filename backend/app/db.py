@@ -5,8 +5,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
-# Load the backend environment file so the URI stays out of source code.
-load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+# Load the root environment file so the URI stays out of source code.
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 # Read the MongoDB settings, using bankApp when no database name is provided.
 MONGO_URI = os.getenv("MONGODB_URI")

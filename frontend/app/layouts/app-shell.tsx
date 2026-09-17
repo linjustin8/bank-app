@@ -1,7 +1,10 @@
 import type { ReactNode } from "react"
 import NavBar from "~/components/navBar"
+import { useCurrentUser } from "~/hooks/use-current-user"
 
 export function AppShell({ children }: { children: ReactNode }) {
+  useCurrentUser()
+
   return (
     <div className="flex min-h-svh flex-col bg-background text-foreground">
       <NavBar />

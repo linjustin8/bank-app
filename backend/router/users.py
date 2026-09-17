@@ -1,6 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Path
 
+from dependencies.auth import CurrentUser
 from services.account_services import AccountNotFound, AccountService
 from services.user_services import UserNotFound, UserService
 from schemas import User, Account, AmountRequest, CreateAccountRequest, Transaction, CreateUserRequest
@@ -31,6 +32,12 @@ def call_service(method, *args):
 @router.post("", response_model=User, status_code=201)
 def create_user(body: CreateUserRequest, service: Service):
     return call_service(service.createUser, body.name, body.email)
+
+
+#Current user linked to the Clerk session: GET /api/users/me
+@router.get("/me", response_model=User)
+def get_current_user_record(user: CurrentUser):
+    return user
 
 
 #User details: GET /api/users/{id} 
