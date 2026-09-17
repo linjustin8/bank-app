@@ -23,3 +23,9 @@ Run these commands from `backend`:
 ```sh
 uv add <package-name>
 ```
+
+Run the following to add clerck packages
+
+'''sh
+npm install @clerk/react
+'''

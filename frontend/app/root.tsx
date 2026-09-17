@@ -1,3 +1,6 @@
+import { ClerkProvider } from "@clerk/react-router"
+import { shadcn } from "@clerk/ui/themes"
+import { clerkMiddleware, rootAuthLoader } from "@clerk/react-router/server"
 import {
   Links,
   Meta,
@@ -5,11 +8,17 @@ import {
   Scripts,
   ScrollRestoration,
   isRouteErrorResponse,
+  useLoaderData,
 } from "react-router"
 
 import type { Route } from "./+types/root"
 import { AppShell } from "~/layouts/app-shell"
 import "./app.css"
+
+export const middleware = [clerkMiddleware()]
+
+export const loader = (args: Parameters<typeof rootAuthLoader>[0]) =>
+  rootAuthLoader(args)
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -30,10 +39,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const loaderData = useLoaderData<typeof loader>()
   return (
-    <AppShell>
-      <Outlet />
-    </AppShell>
+    <ClerkProvider loaderData={loaderData} appearance={{ theme: shadcn }}>
+      <AppShell>
+        <Outlet />
+      </AppShell>
+    </ClerkProvider>
   )
 }
 
