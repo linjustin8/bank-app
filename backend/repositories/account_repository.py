@@ -1,63 +1,82 @@
+from contextlib import nullcontext
 from datetime import datetime
+
+from pymongo import ReturnDocument
 
 from .mongo_database import MongoDatabase
 
 
 class AccountRepository:
-	def __init__(self):
-		self.database = MongoDatabase()
+    def __init__(self):
+        self.database = MongoDatabase()
 
-	def get_by_id(self, account_id: int) -> dict | None:
-		data = self.database.read()
-		return next(
-			(account for account in data["accounts"] if account["account_id"] == account_id),
-			None,
-		)
+    def _session_scope(self, session=None):
+        if session is not None:
+            return nullcontext(session)
+        return self.database.transaction()
 
-	def get_all(self) -> list[dict]:
-		return self.database.read()["accounts"]
+    def get_by_id(self, account_id: int, session=None) -> dict | None:
+        with self._session_scope(session) as txn_session:
+            return self.database.get_collection("accounts").find_one(
+                {"account_id": account_id}, session=txn_session
+            )
 
-	def get_by_user_id(self, user_id: int) -> list[dict]:
-		return [account for account in self.get_all() if account["user_id"] == user_id]
+    def get_all(self, session=None) -> list[dict]:
+        with self._session_scope(session) as txn_session:
+            return list(
+                self.database.get_collection("accounts").find({}, session=txn_session)
+            )
 
-	def create(self, user_id: int, account_type: str) -> dict:
-		data = self.database.read()
-		if not any(user["user_id"] == user_id for user in data["users"]):
-			raise ValueError("Cannot create an account for a user that does not exist.")
+    def get_by_user_id(self, user_id: int, session=None) -> list[dict]:
+        with self._session_scope(session) as txn_session:
+            return list(
+                self.database.get_collection("accounts").find(
+                    {"user_id": user_id}, session=txn_session
+                )
+            )
 
-		next_account_id = max(
-			(account["account_id"] for account in data["accounts"]), default=0
-		) + 1
-		account = {
-			"account_id": next_account_id,
-			"user_id": user_id,
-			"balance": 0.00,
-			"account_type": account_type,
-			"created_at": datetime.now().isoformat(timespec="seconds"),
-		}
-		data["accounts"].append(account)
-		self.database.write(data)
-		return account
+    def create(self, user_id: int, account_type: str, session=None) -> dict:
+        with self._session_scope(session) as txn_session:
+            user_collection = self.database.get_collection("users")
+            account_collection = self.database.get_collection("accounts")
 
-	def update_balance(self, account_id: int, balance: float) -> dict | None:
-		data = self.database.read()
-		account = next(
-			(account for account in data["accounts"] if account["account_id"] == account_id),
-			None,
-		)
-		if account is None:
-			return None
+            if user_collection.find_one({"user_id": user_id}, session=txn_session) is None:
+                raise ValueError("Cannot create an account for a user that does not exist.")
 
-		account["balance"] = round(balance, 2)
-		self.database.write(data)
-		return account
+            next_account_id = (
+                account_collection.find_one({}, sort=[("account_id", -1)], session=txn_session)
+                or {"account_id": 0}
+            )["account_id"] + 1
 
-	def delete(self, account_id: int) -> dict | None:
-		data = self.database.read()
+            account = {
+                "account_id": next_account_id,
+                "user_id": user_id,
+                "balance": 0.00,
+                "account_type": account_type,
+                "created_at": datetime.now().isoformat(timespec="seconds"),
+            }
+            account_collection.insert_one(account, session=txn_session)
+            return account
 
-		for index, account in enumerate(data["accounts"]):
-			if account["account_id"] == account_id:
-				deleted_account = data["accounts"].pop(index)
-				self.database.write(data)
-				return deleted_account
-		return None
+    def update_balance(self, account_id: int, balance: float, session=None) -> dict | None:
+        with self._session_scope(session) as txn_session:
+            account_collection = self.database.get_collection("accounts")
+            account = account_collection.find_one({"account_id": account_id}, session=txn_session)
+            if account is None:
+                return None
+
+            updated = account_collection.find_one_and_update(
+                {"account_id": account_id},
+                {"$set": {"balance": round(balance, 2)}},
+                return_document=ReturnDocument.AFTER,
+                session=txn_session,
+            )
+            return updated
+
+    def delete(self, account_id: int, session=None) -> dict | None:
+        with self._session_scope(session) as txn_session:
+            account_collection = self.database.get_collection("accounts")
+            deleted_account = account_collection.find_one_and_delete(
+                {"account_id": account_id}, session=txn_session
+            )
+            return deleted_account
