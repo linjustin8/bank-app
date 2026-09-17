@@ -19,3 +19,10 @@ To use the components in your app, import them as follows:
 ```tsx
 import { Button } from "@/components/ui/button";
 ```
+ 
+## Clerk
+For installing Clerk dependancies:
+'''tsx
+npm install @clerk/react-router
+npm install -g clerk
+'''
