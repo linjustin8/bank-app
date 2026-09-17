@@ -8,10 +8,10 @@ import {
 
 export default function NavBar() {
   return (
-    <header className="bg-white text-black">
+    <header className="sticky top-0 z-50 w-full flex bg-white text-black">
       <nav
         aria-label="Main navigation"
-        className="flex min-h-[74px] flex-wrap items-center justify-between gap-4 py-4 pr-6 pl-6 sm:pl-[46px]"
+        className="mx-auto flex min-h-[74px] w-full flex-wrap items-center justify-between gap-4 py-4 pr-6 pl-6 sm:pl-[46px]"
       >
         <Link
           to="/"
@@ -20,7 +20,7 @@ export default function NavBar() {
           G3 Banking
         </Link>
 
-        <div className="flex flex-wrap items-center gap-4 text-sm sm:gap-7">
+        <div className="ml-auto flex flex-wrap items-center gap-4 text-sm sm:gap-7">
           <a href="#about" className="text-[#333] hover:underline">
             About
           </a>
