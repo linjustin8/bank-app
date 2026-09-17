@@ -1,4 +1,10 @@
 import { Link } from "react-router"
+import {
+  Show,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+} from "@clerk/react-router"
 
 export default function NavBar() {
   return (
@@ -14,18 +20,32 @@ export default function NavBar() {
           G3 Banking
         </Link>
 
-        <div className="flex items-center gap-7 text-sm">
+        <div className="flex flex-wrap items-center gap-4 text-sm sm:gap-7">
           <a href="#about" className="text-[#333] hover:underline">
             About
           </a>
 
-          <button
-            type="button"
-            className="rounded-[7px] bg-[#222] px-5 py-2 text-xs font-semibold text-white hover:bg-black"
-          >
-            {/* Need to add button for click handler here later */}
-            Sign In 
-          </button>
+          <Show when="signed-out">
+            <SignInButton>
+              <button
+                type="button"
+                className="rounded-[7px] px-5 py-2 text-xs font-semibold hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2"
+              >
+                Sign In
+              </button>
+            </SignInButton>
+            <SignUpButton>
+              <button
+                type="button"
+                className="rounded-[7px] bg-[#222] px-5 py-2 text-xs font-semibold text-white hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-2"
+              >
+                Sign Up
+              </button>
+            </SignUpButton>
+          </Show>
+          <Show when="signed-in">
+            <UserButton />
+          </Show>
         </div>
       </nav>
     </header>
