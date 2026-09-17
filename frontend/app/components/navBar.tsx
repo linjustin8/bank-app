@@ -11,7 +11,7 @@ export default function NavBar() {
     <header className="sticky top-0 z-50 w-full flex bg-white text-black">
       <nav
         aria-label="Main navigation"
-        className="mx-auto flex min-h-[74px] w-3/5 flex-wrap items-center justify-between gap-4 py-4 pr-6 pl-6 sm:pl-[46px]"
+        className="mx-auto flex min-h-[74px] w-full flex-wrap items-center justify-between gap-4 py-4 pr-6 pl-6 sm:pl-[46px]"
       >
         <Link
           to="/"
