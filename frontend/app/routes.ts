@@ -4,4 +4,7 @@ export default [
   index("routes/home.tsx"),
   route("sign-in/*", "routes/sign-in.tsx"),
   route("sign-up/*", "routes/sign-up.tsx"),
+  route("account_details", "routes/account_details.tsx"),
+  route("deposit", "routes/deposit.tsx"),
+  route("withdraw", "routes/withdraw.tsx"),
 ] satisfies RouteConfig
