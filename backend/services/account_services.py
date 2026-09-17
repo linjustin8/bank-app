@@ -40,27 +40,44 @@ class AccountService:
 
     def deposit(self, accountId: int, amount: Decimal) -> Account:
         amount = AmountRequest(amount=amount).amount
-        account = self.getAccount(accountId)
-        updated = self.account_repo.update_balance(
-            accountId, float(account.balance + amount)
-        )
-        if updated is None:
-            raise AccountNotFound("Account not found")
-        self.transaction_repo.create(accountId, "DEPOSIT", float(amount))
-        return self._account_response(updated)
+        # wraps read, update and log sequence togther
+        with self.account_repo.database.transaction() as session:
+            account = self.account_repo.get_by_id(accountId, session=session)
+            if account is None:
+                raise AccountNotFound("Account not found")
+
+            updated = self.account_repo.update_balance(
+                accountId,
+                float(account["balance"]) + float(amount),
+                session=session,
+            )
+            if updated is None:
+                raise AccountNotFound("Account not found")
+
+            self.transaction_repo.create(accountId, "DEPOSIT", float(amount), session=session)
+            return self._account_response(updated)
 
     def withdraw(self, accountId: int, amount: Decimal) -> Account:
         amount = AmountRequest(amount=amount).amount
-        account = self.getAccount(accountId)
-        if amount > account.balance:
-            raise InsufficientFunds("Insufficient funds")
-        updated = self.account_repo.update_balance(
-            accountId, float(account.balance - amount)
-        )
-        if updated is None:
-            raise AccountNotFound("Account not found")
-        self.transaction_repo.create(accountId, "WITHDRAWAL", float(amount))
-        return self._account_response(updated)
+        # wraps read, update and log sequence togther
+        with self.account_repo.database.transaction() as session:
+            account = self.account_repo.get_by_id(accountId, session=session)
+            if account is None:
+                raise AccountNotFound("Account not found")
+
+            if float(amount) > float(account["balance"]):
+                raise InsufficientFunds("Insufficient funds")
+
+            updated = self.account_repo.update_balance(
+                accountId,
+                float(account["balance"]) - float(amount),
+                session=session,
+            )
+            if updated is None:
+                raise AccountNotFound("Account not found")
+
+            self.transaction_repo.create(accountId, "WITHDRAWAL", float(amount), session=session)
+            return self._account_response(updated)
 
     def getTransactions(self, accountId: int) -> list[Transaction]:
         self.getAccount(accountId)
@@ -79,8 +96,8 @@ class AccountService:
             )
             for transaction in transactions
         ]
-        
-    def  deleteAccount(self, accountId):
+
+    def deleteAccount(self, accountId):
         account = self.getAccount(accountId)
         if account.balance != 0:
             raise AccountValueNotZero
