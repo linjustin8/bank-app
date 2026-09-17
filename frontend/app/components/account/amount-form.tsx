@@ -2,7 +2,6 @@ import { ArrowLeft } from "lucide-react"
 import { Link } from "react-router"
 
 import { Button } from "~/components/ui/button"
-import { DUMMY_ACCOUNT, formatCurrency } from "~/lib/account-data"
 
 interface AmountFormProps {
   title: string
@@ -20,7 +19,7 @@ export function AmountForm({
     <div className="mx-auto max-w-md space-y-6">
       <header>
         <Link
-          to="/account"
+          to="/account_details"
           className="flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
         >
           <ArrowLeft className="size-3.5" aria-hidden />
@@ -34,7 +33,7 @@ export function AmountForm({
         <dl className="mb-5 flex items-baseline justify-between border-b pb-4">
           <dt className="text-xs text-muted-foreground">Available balance</dt>
           <dd className="text-lg font-semibold text-foreground">
-            {formatCurrency("XXX - Available Banalce here")}
+            "PH - Available Balance"
           </dd>
         </dl>
 
@@ -61,7 +60,7 @@ export function AmountForm({
           {submitLabel}
         </Button>
         <p className="mt-2 text-center text-xs text-muted-foreground">
-          Not wired to the backend yet.
+          
         </p>
       </div>
     </div>
