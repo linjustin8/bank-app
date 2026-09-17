@@ -21,14 +21,23 @@ class UserRepository:
 			None,
 		)
 
-	def create(self, name: str, email: str) -> dict:
+	def get_by_clerk_id(self, clerk_user_id: str) -> dict | None:
+		return next(
+			(user for user in self.get_all() if user.get("clerk_user_id") == clerk_user_id),
+			None,
+		)
+
+	def create(self, name: str, email: str, clerk_user_id: str | None = None) -> dict:
 		if self.get_by_email(email) is not None:
 			raise ValueError("A user with this email already exists.")
+		if clerk_user_id is not None and self.get_by_clerk_id(clerk_user_id) is not None:
+			raise ValueError("A user with this Clerk ID already exists.")
 
 		data = self.database.read()
 		next_user_id = max((user["user_id"] for user in data["users"]), default=0) + 1
 		user = {
 			"user_id": next_user_id,
+			"clerk_user_id": clerk_user_id,
 			"name": name,
 			"email": email,
 			"created_at": datetime.now().isoformat(timespec="seconds"),
