@@ -1,18 +1,11 @@
 import { useRef, useState, type FormEvent } from "react"
 import { isAxiosError } from "axios"
-import { isAxiosError } from "axios"
-import { useRef, useState, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router"
-
 import { Button } from "~/components/ui/button"
 import { useAccountData } from "~/hooks/use-account-data"
 import { useApi } from "~/hooks/use-api"
 import { formatCurrency } from "~/lib/account-data"
-import { useApi } from "~/hooks/use-api"
 
-export function meta() {
-  return [{ title: "Transfer Money · G3 Banking" }]
-}
 
 export default function Transfer() {
   const navigate = useNavigate()
@@ -174,12 +167,6 @@ export default function Transfer() {
         {success && (
           <p className="text-xs font-medium text-green-600">
             Transfer successful! Redirecting to your account details...
-          </p>
-        )}
-
-        {error && (
-          <p role="alert" className="text-xs font-medium text-red-600">
-            {error}
           </p>
         )}
 
