@@ -1,18 +1,14 @@
 interface SparklineProps {
   values: number[]
   colorVar?: string
-  /** Colour of the 2px ring around the end marker — must match the surface. */
-  surfaceVar?: string
+  surfaceVar?: string //color around end marker to match the surface
   className?: string
 }
 
 const WIDTH = 100
 const HEIGHT = 32
 
-/**
- * Trend line for a stat tile or balance card. Deliberately unlabelled and
- * axis-less — the tile's value is the number, this is only the shape of it.
- */
+// Axis-less and unlabelled trend line used for the balance card
 export function Sparkline({
   values,
   colorVar = "var(--viz-1)",
@@ -24,7 +20,7 @@ export function Sparkline({
   const min = Math.min(...values)
   const max = Math.max(...values)
   const span = max - min || 1
-  const inset = 3 // keeps the 2px stroke and end marker inside the viewBox
+  const inset = 3
 
   const points = values.map((value, index) => ({
     x: (index / (values.length - 1)) * WIDTH,

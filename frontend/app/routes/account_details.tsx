@@ -1,37 +1,15 @@
 import { useAccountData } from "~/hooks/use-account-data"
-import {
-  ArrowDownToLine,
-  ArrowRight,
-  ArrowUpFromLine,
-  Receipt,
-  TrendingUp,
-} from "lucide-react"
+import { ArrowDownToLine, ArrowRight, ArrowUpFromLine, Receipt, TrendingUp } from "lucide-react"
 import { Link } from "react-router"
 
 import { FlowSplit } from "~/components/account/flow-split"
 import { StatTile } from "~/components/account/stat-tile"
-import { DonutChart } from "~/components/charts/donut-chart"
-import { FlowColumns } from "~/components/charts/flow-columns"
 import { Sparkline } from "~/components/charts/sparkline"
 import { buttonVariants } from "~/components/ui/button"
 import { cn } from "~/lib/utils"
-import {
-  formatCurrency,
-  formatDate,
-  summarize,
-  currentMonthTransactions,
-} from "~/lib/account-data"
+import { formatCurrency, formatDate, summarize, currentMonthTransactions } from "~/lib/account-data"
 
-export function meta() {
-  return [
-    { title: "Account details · G3 Banking" },
-    {
-      name: "description",
-      content: "Balance, deposit and withdrawal habits for your G3 account.",
-    },
-  ]
-}
-
+// Buttons to respective pages
 const ACTIONS = [
   {
     to: "/deposit",
@@ -53,16 +31,9 @@ const ACTIONS = [
   },
 ]
 
+// Available balance - Top left card
 export default function AccountDetails() {
-  const {
-    account,
-    accounts,
-    transactions,
-    monthlyFlow,
-    message,
-    accountLink,
-    selectAccount,
-  } = useAccountData()
+  const {account, accounts, transactions, monthlyFlow, message, accountLink, selectAccount } = useAccountData()
   if (!account || !transactions) return <p role="status">{message}</p>
   const thisMonth = currentMonthTransactions(transactions)
   const summary = summarize(thisMonth)
@@ -138,7 +109,7 @@ export default function AccountDetails() {
         </div>
       </header>
 
-      {/* Balance card — the one hero figure on this view. */}
+      {/* Balance card — top right */}
       <section className="grid gap-4 lg:grid-cols-3">
         <div className="rounded-2xl border bg-card p-6 shadow-sm lg:col-span-2">
           <div className="flex flex-wrap items-start justify-between gap-6">
@@ -153,9 +124,7 @@ export default function AccountDetails() {
                 className="mt-2 flex items-center gap-1.5 text-sm"
                 style={{
                   color:
-                    balanceChange >= 0
-                      ? "var(--viz-good)"
-                      : "var(--viz-critical)",
+                    balanceChange >= 0 ? "var(--viz-good)" : "var(--viz-critical)",
                 }}
               >
                 <TrendingUp className="size-4" aria-hidden />
@@ -195,6 +164,7 @@ export default function AccountDetails() {
           </nav>
         </div>
 
+        {/* Top left card */}
         <div className="rounded-2xl border bg-card p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-foreground">
             This month at a glance
@@ -209,9 +179,13 @@ export default function AccountDetails() {
             deposits={summary.deposits}
             withdrawals={summary.withdrawals}
           />
+          <p className="mt-3 text-xs text-muted-foreground">
+            Across {summary.transactionCount} transactions made this month
+          </p>
         </div>
       </section>
 
+        {/* Middle row of cards. Summary of actions made during current month */}
       <section
         aria-label="Monthly summary"
         className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
@@ -230,9 +204,7 @@ export default function AccountDetails() {
           label="Net flow"
           value={`${summary.netFlow >= 0 ? "+" : "−"}${formatCurrency(Math.abs(summary.netFlow))}`}
           delta={
-            summary.deposits > 0
-              ? `${Math.round(summary.spendRate * 100)}% of income spent`
-              : "No deposits this month"
+            summary.deposits > 0 ? `${Math.round(summary.spendRate * 100)}% of income spent` : "No deposits this month"
           }
           deltaIsGood={summary.spendRate < 1}
         />
@@ -248,37 +220,7 @@ export default function AccountDetails() {
         />
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border bg-card p-6 shadow-sm">
-          <h2 className="text-sm font-semibold text-foreground">
-            Money movement by type
-          </h2>
-          <p className="mt-0.5 mb-6 text-xs text-muted-foreground">
-            Every dollar in and out this month. Hover a slice for its share.
-          </p>
-          <DonutChart
-            totalLabel="Total moved"
-            slices={categorySplit.map((slice) => ({
-              key: slice.key,
-              label: slice.label,
-              tag: slice.flow,
-              value: slice.value,
-              colorVar: slice.colorVar,
-            }))}
-          />
-        </div>
-
-        <div className="rounded-2xl border bg-card p-6 shadow-sm">
-          <h2 className="text-sm font-semibold text-foreground">
-            Deposits vs withdrawals
-          </h2>
-          <p className="mt-0.5 mb-6 text-xs text-muted-foreground">
-            Last 6 months
-          </p>
-          <FlowColumns data={monthlyFlow} />
-        </div>
-      </section>
-
+        {/* Bottom Card - displays the 5 most recent transactions made */}
       <section className="rounded-2xl border bg-card p-6 shadow-sm">
         <div className="mb-4 flex items-center justify-between gap-4">
           <h2 className="text-sm font-semibold text-foreground">
@@ -297,7 +239,8 @@ export default function AccountDetails() {
           <p className="text-sm text-muted-foreground">No transactions yet.</p>
         )}
         <ul className="divide-y">
-          {transactions.slice(0, 6).map((txn) => {
+            {/* 5 most recent transactions */}
+          {transactions.slice(0, 5).map((txn) => {
             const isDeposit = txn.type === "DEPOSIT"
             return (
               <li

@@ -25,7 +25,8 @@ export interface MonthlyFlow {
   closingBalance: number
 }
 
-/** Derive six calendar months from the full history returned by the API. */
+// Derives six months from full history of transactions returned
+// Used for displaying transaction data
 export function monthlyFlows(
   balance: number,
   transactions: Transaction[],
@@ -55,6 +56,7 @@ export function monthlyFlows(
   })
 }
 
+// Derives current month data for account details page
 export function currentMonthTransactions(
   transactions: Transaction[],
   now = new Date()
@@ -86,11 +88,12 @@ export function formatCurrency(value: number) {
   return currency.format(value)
 }
 
-/** Axis ticks and tight stat tiles: $12.5K rather than $12,480.55. */
+// Compacts to $12.5K rather than $12,480.00
 export function formatCompactCurrency(value: number) {
   return compact.format(value)
 }
 
+// Derives and formats date
 export function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
     month: "short",
@@ -104,10 +107,8 @@ export interface AccountSummary {
   withdrawals: number
   netFlow: number
   transactionCount: number
-  /** Share of all money movement that is a deposit, 0–1. */
-  depositShare: number
-  /** Withdrawals as a share of deposits, 0–1+, the "spend rate". */
-  spendRate: number
+  depositShare: number  //portion of money movement that is a deposit 0-1
+  spendRate: number 
 }
 
 export function summarize(transactions: Transaction[]): AccountSummary {

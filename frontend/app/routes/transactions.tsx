@@ -1,20 +1,11 @@
 import { useAccountData } from "~/hooks/use-account-data"
 import { ArrowLeft } from "lucide-react"
 import { Link } from "react-router"
-
 import { formatCurrency, formatDate } from "~/lib/account-data"
 
-export function meta() {
-  return [{ title: "Transactions · G3 Banking" }]
-}
-
-/**
- * Transaction history, and the table view for the account page's charts —
- * every plotted value is readable here without relying on colour or hover.
- */
+// Transaction History cards. Uses account data hook
 export default function Transactions() {
-  const { account, transactions, monthlyFlow, message, accountLink } =
-    useAccountData()
+  const { account, transactions, monthlyFlow, message, accountLink } = useAccountData()
   if (!account || !transactions) return <p role="status">{message}</p>
   return (
     <div className="space-y-6">
@@ -34,6 +25,7 @@ export default function Transactions() {
         </p>
       </header>
 
+    {/* Top Card - transactions with most recent first order */}
       <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
         <table className="w-full text-sm">
           <caption className="sr-only">
@@ -45,7 +37,7 @@ export default function Transactions() {
                 Date
               </th>
               <th scope="col" className="px-4 py-3 font-medium">
-                Description
+                txn_id
               </th>
               <th scope="col" className="px-4 py-3 font-medium">
                 Type
@@ -68,8 +60,8 @@ export default function Transactions() {
                 <td className="px-4 py-3 whitespace-nowrap text-secondary-foreground tabular-nums">
                   {formatDate(txn.createdAt)}
                 </td>
-                <td className="px-4 py-3 font-medium text-foreground">
-                  {txn.category}
+                <td className="px-4 py-3 text-secondary-foreground tabular-nums">
+                  {txn.id}
                 </td>
                 <td className="px-4 py-3 text-secondary-foreground">
                   {txn.type === "DEPOSIT" ? "Deposit" : "Withdrawal"}
@@ -84,15 +76,12 @@ export default function Transactions() {
         </table>
       </section>
 
+      {/* Bottom card - transaction by month and type */}
       <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
         <h2 className="border-b px-4 py-3 text-sm font-semibold text-foreground">
           Monthly totals
         </h2>
         <table className="w-full text-sm">
-          <caption className="sr-only">
-            Deposits and withdrawals per month — the table view of the deposits
-            vs withdrawals chart
-          </caption>
           <thead>
             <tr className="border-b text-left text-xs text-muted-foreground">
               <th scope="col" className="px-4 py-3 font-medium">

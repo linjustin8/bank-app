@@ -5,13 +5,8 @@ interface FlowSplitProps {
   withdrawals: number
 }
 
-/**
- * Deposits against withdrawals as a single split bar.
- *
- * Two parts of one whole is a split bar, not a pie — with only two segments a
- * pie costs a full ring to say what one bar and two numbers say better. The
- * category donut is where the pie earns its space.
- */
+
+// Deposits against withdrawals as line bar
 export function FlowSplit({ deposits, withdrawals }: FlowSplitProps) {
   const total = deposits + withdrawals
   const depositShare = total === 0 ? 0 : deposits / total
@@ -51,10 +46,6 @@ export function FlowSplit({ deposits, withdrawals }: FlowSplitProps) {
           style={{ backgroundColor: "var(--viz-2)" }}
         />
       </div>
-
-      <p className="mt-2 text-xs text-muted-foreground">
-        {Math.round(depositShare * 100)}% of this month's movement was money in
-      </p>
     </div>
   )
 }

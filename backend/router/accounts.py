@@ -53,13 +53,15 @@ def get_account(id: AccountId, user: CurrentUser, service: Service):
 
 #Depoit Money: POST /api/accounts/{id}/deposit 
 @router.post("/{id}/deposit", response_model=Account)
-def deposit(id: AccountId, body: AmountRequest, service: Service):
+def deposit(id: AccountId, body: AmountRequest, user: CurrentUser, service: Service):
+    require_owned_account(id, user, service)
     return call_service(service.deposit, id, body.amount)
 
 
 #Withdraw money: POST /api/accounts/{id}/withdraw 
 @router.post("/{id}/withdraw", response_model=Account)
-def withdraw(id: AccountId, body: AmountRequest, service: Service):
+def withdraw(id: AccountId, body: AmountRequest, user: CurrentUser, service: Service):
+    require_owned_account(id, user, service)
     return call_service(service.withdraw, id, body.amount)
 
 

@@ -3,15 +3,13 @@ import type { ReactNode } from "react"
 interface StatTileProps {
   label: string
   value: string
-  /** Signed change against a named period, e.g. "+4.2% vs August". */
-  delta?: string
-  /** Whether the delta reads as good — drives its colour, not its sign. */
-  deltaIsGood?: boolean
-  /** A colour-slot dot tying the tile to its series in the charts. */
-  colorVar?: string
+  delta?: string //signed change against specified period
+  deltaIsGood?: boolean //checks whether delta reads as good to derive its color
+  colorVar?: string 
   children?: ReactNode
 }
 
+// Displays stat line of transactions over the last six months
 export function StatTile({
   label,
   value,

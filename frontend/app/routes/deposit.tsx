@@ -7,8 +7,9 @@ export function meta() {
 export default function Deposit() {
   return (
     <AmountForm
+      operation="deposit"
       title="Deposit"
-      description="Add money to your checking account."
+      description="Add money to your account."
       submitLabel="Deposit funds"
     />
   )
