@@ -7,8 +7,9 @@ export function meta() {
 export default function Withdraw() {
   return (
     <AmountForm
+      operation="withdraw"
       title="Withdraw"
-      description="Move money out of your checking account."
+      description="Move money out of your account."
       submitLabel="Withdraw funds"
     />
   )

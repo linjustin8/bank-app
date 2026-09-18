@@ -38,6 +38,12 @@ class AccountService:
             raise AccountNotFound("Account not found")
         return self._account_response(account)
 
+    def getAccountsForUser(self, userId: int) -> list[Account]:
+        return [
+            self._account_response(account)
+            for account in self.account_repo.get_by_user_id(userId)
+        ]
+
     def deposit(self, accountId: int, amount: Decimal) -> Account:
         amount = AmountRequest(amount=amount).amount
         account = self.getAccount(accountId)
@@ -85,4 +91,3 @@ class AccountService:
         if account.balance != 0:
             raise AccountValueNotZero
         self.account_repo.delete(accountId)
-        
