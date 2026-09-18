@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from app.db import database
 
 
@@ -22,3 +24,70 @@ class MongoDatabase:
             # Avoid calling insert_many when there are no documents to insert.
             if documents:
                 collection.insert_many(documents)
+
+    def apply_transfer(
+        self, from_account_id: int, to_account_id: int, amount: float
+    ) -> tuple[dict, dict]:
+        accounts = database["accounts"]
+        transactions = database["transactions"]
+
+        with database.client.start_session() as session:
+            with session.start_transaction():
+                source = accounts.find_one(
+                    {"account_id": from_account_id}, {"_id": 0}, session=session
+                )
+                destination = accounts.find_one(
+                    {"account_id": to_account_id}, {"_id": 0}, session=session
+                )
+
+                if source is None or destination is None:
+                    raise ValueError("Account not found")
+                if source["balance"] < amount:
+                    raise ValueError("Insufficient funds")
+
+                accounts.update_one(
+                    {"account_id": from_account_id},
+                    {"$inc": {"balance": -amount}},
+                    session=session,
+                )
+                accounts.update_one(
+                    {"account_id": to_account_id},
+                    {"$inc": {"balance": amount}},
+                    session=session,
+                )
+
+                next_transaction_id = (
+                    transactions.find_one(
+                        sort=[("txn_id", -1)], session=session
+                    )
+                    or {"txn_id": 0}
+                )["txn_id"] + 1
+                created_at = datetime.now().isoformat(timespec="seconds")
+                transactions.insert_many(
+                    [
+                        {
+                            "txn_id": next_transaction_id,
+                            "account_id": from_account_id,
+                            "txn_type": "WITHDRAW",
+                            "amount": round(amount, 2),
+                            "created_at": created_at,
+                        },
+                        {
+                            "txn_id": next_transaction_id + 1,
+                            "account_id": to_account_id,
+                            "txn_type": "DEPOSIT",
+                            "amount": round(amount, 2),
+                            "created_at": created_at,
+                        },
+                    ],
+                    session=session,
+                )
+
+                updated_source = accounts.find_one(
+                    {"account_id": from_account_id}, {"_id": 0}, session=session
+                )
+                updated_destination = accounts.find_one(
+                    {"account_id": to_account_id}, {"_id": 0}, session=session
+                )
+
+        return updated_source, updated_destination

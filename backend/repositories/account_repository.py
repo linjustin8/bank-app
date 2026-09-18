@@ -52,6 +52,11 @@ class AccountRepository:
 		self.database.write(data)
 		return account
 
+	def apply_transfer(
+		self, from_account_id: int, to_account_id: int, amount: float
+	) -> tuple[dict, dict]:
+		return self.database.apply_transfer(from_account_id, to_account_id, amount)
+
 	def delete(self, account_id: int) -> dict | None:
 		data = self.database.read()
 

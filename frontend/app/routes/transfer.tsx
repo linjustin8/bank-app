@@ -1,9 +1,12 @@
 import { useRef, useState, type FormEvent } from "react"
 import { isAxiosError } from "axios"
+import { isAxiosError } from "axios"
+import { useRef, useState, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router"
 
 import { Button } from "~/components/ui/button"
 import { useAccountData } from "~/hooks/use-account-data"
+import { useApi } from "~/hooks/use-api"
 import { formatCurrency } from "~/lib/account-data"
 import { useApi } from "~/hooks/use-api"
 
@@ -13,7 +16,7 @@ export function meta() {
 
 export default function Transfer() {
   const navigate = useNavigate()
-  const { post } = useApi()
+  const api = useApi()
   const { accounts, message, accountLink } = useAccountData()
   const [fromAccountId, setFromAccountId] = useState("")
   const [toAccountId, setToAccountId] = useState("")
@@ -31,25 +34,27 @@ export default function Transfer() {
     fromAccountId !== toAccountId &&
     amount !== ""
 
-  async function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!canTransfer || submitting.current || success) return
+    if (!canTransfer || submitting.current) return
 
     submitting.current = true
     setPending(true)
     setError("")
     try {
-      await post("/api/accounts/transfer", {
+      await api.post("/api/accounts/transfer", {
         fromAccountId: Number(fromAccountId),
         toAccountId: Number(toAccountId),
         amount,
       })
       setSuccess(true)
-      navigate(`/account_details?accountId=${fromAccountId}`)
+      setTimeout(() => navigate(accountLink("/account_details")), 1500)
     } catch (error) {
       const detail = isAxiosError(error) ? error.response?.data?.detail : null
       setError(
-        typeof detail === "string" ? detail : "Unable to confirm the transfer. Check your balances before trying again."
+        typeof detail === "string"
+          ? detail
+          : "Unable to complete the transfer. Please try again."
       )
     } finally {
       submitting.current = false
@@ -82,11 +87,8 @@ export default function Transfer() {
             required
             disabled={pending || success}
             value={fromAccountId}
-            onChange={(event) => {
-              setFromAccountId(event.target.value)
-              if (event.target.value === toAccountId) setToAccountId("")
-              setError("")
-            }}
+            disabled={pending}
+            onChange={(event) => setFromAccountId(event.target.value)}
             className="mt-1.5 w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="" disabled>
@@ -113,6 +115,7 @@ export default function Transfer() {
             required
             disabled={pending || success}
             value={toAccountId}
+            disabled={pending}
             onChange={(event) => setToAccountId(event.target.value)}
             className="mt-1.5 w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
           >
@@ -155,6 +158,7 @@ export default function Transfer() {
               step="0.01"
               placeholder="0.00"
               value={amount}
+              disabled={pending}
               onChange={(event) => setAmount(event.target.value)}
               className="w-full [appearance:textfield] bg-transparent py-2.5 pl-2 text-sm tabular-nums outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             />
@@ -173,6 +177,12 @@ export default function Transfer() {
           </p>
         )}
 
+        {error && (
+          <p role="alert" className="text-xs font-medium text-red-600">
+            {error}
+          </p>
+        )}
+
         <Button
           type="submit"
           variant="ghost"
@@ -180,8 +190,7 @@ export default function Transfer() {
           className="w-full rounded-full border border-border bg-[#1d63e7]/20 py-3 text-lg text-black! shadow-none hover:bg-[#1d63e7]/20 hover:text-[#1d63e7]!"
           disabled={!canTransfer || pending || success}
         >
-          {pending ? "Transferring…" : success
-              ? "Transfer complete" : "Transfer"}
+          {success ? "Transfer complete" : pending ? "Processing..." : "Transfer"}
         </Button>
       </form>
 
