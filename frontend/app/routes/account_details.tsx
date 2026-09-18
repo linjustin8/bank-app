@@ -129,10 +129,7 @@ export default function AccountDetails() {
               >
                 <TrendingUp className="size-4" aria-hidden />
                 {balanceChange >= 0 ? "+" : "−"}
-                {formatCurrency(Math.abs(balanceChange))}
-                {balanceChangePct !== null &&
-                  ` (${balanceChangePct.toFixed(1)}%)`}{" "}
-                vs last month
+                {formatCurrency(Math.abs(balanceChange))} vs last month
               </p>
             </div>
 
