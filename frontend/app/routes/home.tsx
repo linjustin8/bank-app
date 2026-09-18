@@ -1,4 +1,5 @@
-import { SignInButton, SignUpButton } from "@clerk/react";
+import { Show, SignInButton, SignUpButton } from "@clerk/react-router"
+import { Link } from "react-router"
 
 export default function Home() {
   return (
@@ -20,23 +21,41 @@ export default function Home() {
           </p>
 
           <div className="mt-12 flex flex-col items-center justify-center gap-5 sm:flex-row">
-            <SignInButton>
-              <button
-                type="button"
+            <Show when="signed-out">
+              <SignInButton>
+                <button
+                  type="button"
+                  className="min-w-[250px] rounded-full border border-[#d7d9f5] bg-[#edf3fb]/80 px-8 py-5 text-[1.05rem] font-medium text-[#1a2a45] shadow-[0_0_0_1px_rgba(255,255,255,0.25),0_3px_0_rgba(148,156,187,0.45)] transition duration-150 ease-out hover:-translate-y-0.5 hover:bg-[#f5f8fe] hover:shadow-[0_0_0_1px_rgba(255,255,255,0.35),0_5px_0_rgba(148,156,187,0.55)]"
+                >
+                  View Account
+                </button>
+              </SignInButton>
+
+              <SignUpButton>
+                <button
+                  type="button"
+                  className="min-w-[250px] rounded-full bg-[#1d63e7] px-8 py-5 text-[1.05rem] font-semibold text-white shadow-[0_4px_0_rgba(18,74,183,0.9)] transition duration-150 ease-out hover:-translate-y-0.5 hover:bg-[#1a5ae0] hover:shadow-[0_6px_0_rgba(18,74,183,0.95)]"
+                >
+                  Create Account
+                </button>
+              </SignUpButton>
+            </Show>
+
+            <Show when="signed-in">
+              <Link
+                to="/account_details"
                 className="min-w-[250px] rounded-full border border-[#d7d9f5] bg-[#edf3fb]/80 px-8 py-5 text-[1.05rem] font-medium text-[#1a2a45] shadow-[0_0_0_1px_rgba(255,255,255,0.25),0_3px_0_rgba(148,156,187,0.45)] transition duration-150 ease-out hover:-translate-y-0.5 hover:bg-[#f5f8fe] hover:shadow-[0_0_0_1px_rgba(255,255,255,0.35),0_5px_0_rgba(148,156,187,0.55)]"
               >
                 View Account
-              </button>
-            </SignInButton>
+              </Link>
 
-            <SignUpButton>
-              <button
-                type="button"
+              <Link
+                to="/open-account"
                 className="min-w-[250px] rounded-full bg-[#1d63e7] px-8 py-5 text-[1.05rem] font-semibold text-white shadow-[0_4px_0_rgba(18,74,183,0.9)] transition duration-150 ease-out hover:-translate-y-0.5 hover:bg-[#1a5ae0] hover:shadow-[0_6px_0_rgba(18,74,183,0.95)]"
               >
-                Create Account
-              </button>
-            </SignUpButton>
+                Open Bank Account
+              </Link>
+            </Show>
           </div>
         </div>
       </div>
