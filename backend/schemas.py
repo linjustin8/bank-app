@@ -15,12 +15,23 @@ class CreateAccountRequest(BaseModel):
 class AmountRequest(BaseModel):
     amount: Annotated[Decimal, Field(gt=0, max_digits=18, decimal_places=2)]
 
+
+class TransferRequest(BaseModel):
+    fromAccountId: int = Field(gt=0)
+    toAccountId: int = Field(gt=0)
+    amount: Annotated[Decimal, Field(gt=0, max_digits=18, decimal_places=2)]
+
 #Account fields
 class Account(BaseModel):
     id: int
     userId: int
     accountType: Literal["SAVINGS", "CHECKING"]
     balance: Decimal = Decimal("0.00")
+
+
+class TransferResponse(BaseModel):
+    fromAccount: Account
+    toAccount: Account
 
 #Transaction fields
 class Transaction(BaseModel):

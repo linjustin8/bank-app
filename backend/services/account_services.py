@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from repositories.account_repository import AccountRepository
 from repositories.transaction_repository import TransactionRepository
-from schemas import Account, AmountRequest, CreateAccountRequest, Transaction
+from schemas import Account, AmountRequest, CreateAccountRequest, Transaction, TransferResponse
 
 
 class AccountNotFound(Exception):
@@ -67,6 +67,32 @@ class AccountService:
             raise AccountNotFound("Account not found")
         self.transaction_repo.create(accountId, "WITHDRAWAL", float(amount))
         return self._account_response(updated)
+
+    def transfer(
+        self,
+        fromAccountId: int,
+        toAccountId: int,
+        amount: Decimal,
+        userId: int,
+    ) -> TransferResponse:
+        if fromAccountId == toAccountId:
+            raise ValueError("Source and destination accounts must be different")
+
+        amount = AmountRequest(amount=amount).amount
+        source = self.getAccount(fromAccountId)
+        destination = self.getAccount(toAccountId)
+        if source.userId != userId or destination.userId != userId:
+            raise AccountNotFound("Account not found")
+        if amount > source.balance:
+            raise InsufficientFunds("Insufficient funds")
+
+        updated_source, updated_destination = self.account_repo.apply_transfer(
+            fromAccountId, toAccountId, float(amount)
+        )
+        return TransferResponse(
+            fromAccount=self._account_response(updated_source),
+            toAccount=self._account_response(updated_destination),
+        )
 
     def getTransactions(self, accountId: int) -> list[Transaction]:
         self.getAccount(accountId)

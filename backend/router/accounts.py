@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Path
 
 from services.account_services import AccountNotFound, AccountService
-from schemas import Account, AmountRequest, CreateAccountRequest, Transaction
+from schemas import Account, AmountRequest, CreateAccountRequest, Transaction, TransferRequest, TransferResponse
 from dependencies.auth import CurrentUser
 
 router = APIRouter(prefix="/api/accounts", tags=["Accounts"])
@@ -63,6 +63,17 @@ def deposit(id: AccountId, body: AmountRequest, user: CurrentUser, service: Serv
 def withdraw(id: AccountId, body: AmountRequest, user: CurrentUser, service: Service):
     require_owned_account(id, user, service)
     return call_service(service.withdraw, id, body.amount)
+
+
+@router.post("/transfer", response_model=TransferResponse)
+def transfer(body: TransferRequest, user: CurrentUser, service: Service):
+    return call_service(
+        service.transfer,
+        body.fromAccountId,
+        body.toAccountId,
+        body.amount,
+        user.user_id,
+    )
 
 
 #Transaction history: GET /api/accounts/{id}/transactions 
