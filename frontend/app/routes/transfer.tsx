@@ -1,8 +1,10 @@
-import { useState, type FormEvent } from "react"
+import { isAxiosError } from "axios"
+import { useRef, useState, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router"
 
 import { Button } from "~/components/ui/button"
 import { useAccountData } from "~/hooks/use-account-data"
+import { useApi } from "~/hooks/use-api"
 import { formatCurrency } from "~/lib/account-data"
 
 export function meta() {
@@ -11,11 +13,15 @@ export function meta() {
 
 export default function Transfer() {
   const navigate = useNavigate()
+  const api = useApi()
   const { accounts, message, accountLink } = useAccountData()
   const [fromAccountId, setFromAccountId] = useState("")
   const [toAccountId, setToAccountId] = useState("")
   const [amount, setAmount] = useState("")
   const [success, setSuccess] = useState(false)
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState("")
+  const submitting = useRef(false)
 
   if (!accounts) return <p role="status">{message}</p>
 
@@ -25,13 +31,32 @@ export default function Transfer() {
     fromAccountId !== toAccountId &&
     amount !== ""
 
-  // Front-end only for now: no backend call, just a mock confirmation + redirect.
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!canTransfer) return
+    if (!canTransfer || submitting.current) return
 
-    setSuccess(true)
-    setTimeout(() => navigate(accountLink("/account_details")), 1500)
+    submitting.current = true
+    setPending(true)
+    setError("")
+    try {
+      await api.post("/api/accounts/transfer", {
+        fromAccountId: Number(fromAccountId),
+        toAccountId: Number(toAccountId),
+        amount,
+      })
+      setSuccess(true)
+      setTimeout(() => navigate(accountLink("/account_details")), 1500)
+    } catch (error) {
+      const detail = isAxiosError(error) ? error.response?.data?.detail : null
+      setError(
+        typeof detail === "string"
+          ? detail
+          : "Unable to complete the transfer. Please try again."
+      )
+    } finally {
+      submitting.current = false
+      setPending(false)
+    }
   }
 
   return (
@@ -56,6 +81,7 @@ export default function Transfer() {
           <select
             id="fromAccount"
             value={fromAccountId}
+            disabled={pending}
             onChange={(event) => setFromAccountId(event.target.value)}
             className="mt-1.5 w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
           >
@@ -81,6 +107,7 @@ export default function Transfer() {
           <select
             id="toAccount"
             value={toAccountId}
+            disabled={pending}
             onChange={(event) => setToAccountId(event.target.value)}
             className="mt-1.5 w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
           >
@@ -121,6 +148,7 @@ export default function Transfer() {
               step="0.01"
               placeholder="0.00"
               value={amount}
+              disabled={pending}
               onChange={(event) => setAmount(event.target.value)}
               className="w-full bg-transparent py-2.5 pl-2 text-sm outline-none tabular-nums"
             />
@@ -133,14 +161,20 @@ export default function Transfer() {
           </p>
         )}
 
+        {error && (
+          <p role="alert" className="text-xs font-medium text-red-600">
+            {error}
+          </p>
+        )}
+
         <Button
           type="submit"
           variant="ghost"
           size="lg"
           className="w-full rounded-full border border-border bg-[#1d63e7]/20 py-3 text-lg text-black! shadow-none hover:bg-[#1d63e7]/20 hover:text-[#1d63e7]!"
-          disabled={!canTransfer || success}
+          disabled={!canTransfer || pending || success}
         >
-          {success ? "Transfer complete" : "Transfer"}
+          {success ? "Transfer complete" : pending ? "Processing..." : "Transfer"}
         </Button>
       </form>
 
