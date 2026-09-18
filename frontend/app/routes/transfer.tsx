@@ -1,15 +1,19 @@
 import { useRef, useState, type FormEvent } from "react"
 import { isAxiosError } from "axios"
 import { Link, useNavigate } from "react-router"
+
 import { Button } from "~/components/ui/button"
 import { useAccountData } from "~/hooks/use-account-data"
-import { useApi } from "~/hooks/use-api"
 import { formatCurrency } from "~/lib/account-data"
+import { useApi } from "~/hooks/use-api"
 
+export function meta() {
+  return [{ title: "Transfer Money · G3 Banking" }]
+}
 
 export default function Transfer() {
   const navigate = useNavigate()
-  const api = useApi()
+  const { post } = useApi()
   const { accounts, message, accountLink } = useAccountData()
   const [fromAccountId, setFromAccountId] = useState("")
   const [toAccountId, setToAccountId] = useState("")
@@ -27,27 +31,25 @@ export default function Transfer() {
     fromAccountId !== toAccountId &&
     amount !== ""
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault()
-    if (!canTransfer || submitting.current) return
+    if (!canTransfer || submitting.current || success) return
 
     submitting.current = true
     setPending(true)
     setError("")
     try {
-      await api.post("/api/accounts/transfer", {
+      await post("/api/accounts/transfer", {
         fromAccountId: Number(fromAccountId),
         toAccountId: Number(toAccountId),
         amount,
       })
       setSuccess(true)
-      setTimeout(() => navigate(accountLink("/account_details")), 1500)
+      navigate(`/account_details?accountId=${fromAccountId}`)
     } catch (error) {
       const detail = isAxiosError(error) ? error.response?.data?.detail : null
       setError(
-        typeof detail === "string"
-          ? detail
-          : "Unable to complete the transfer. Please try again."
+        typeof detail === "string" ? detail : "Unable to confirm the transfer. Check your balances before trying again."
       )
     } finally {
       submitting.current = false
@@ -80,8 +82,11 @@ export default function Transfer() {
             required
             disabled={pending || success}
             value={fromAccountId}
-            disabled={pending}
-            onChange={(event) => setFromAccountId(event.target.value)}
+            onChange={(event) => {
+              setFromAccountId(event.target.value)
+              if (event.target.value === toAccountId) setToAccountId("")
+              setError("")
+            }}
             className="mt-1.5 w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="" disabled>
@@ -108,7 +113,6 @@ export default function Transfer() {
             required
             disabled={pending || success}
             value={toAccountId}
-            disabled={pending}
             onChange={(event) => setToAccountId(event.target.value)}
             className="mt-1.5 w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
           >
@@ -151,7 +155,6 @@ export default function Transfer() {
               step="0.01"
               placeholder="0.00"
               value={amount}
-              disabled={pending}
               onChange={(event) => setAmount(event.target.value)}
               className="w-full [appearance:textfield] bg-transparent py-2.5 pl-2 text-sm tabular-nums outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             />
@@ -177,7 +180,8 @@ export default function Transfer() {
           className="w-full rounded-full border border-border bg-[#1d63e7]/20 py-3 text-lg text-black! shadow-none hover:bg-[#1d63e7]/20 hover:text-[#1d63e7]!"
           disabled={!canTransfer || pending || success}
         >
-          {success ? "Transfer complete" : pending ? "Processing..." : "Transfer"}
+          {pending ? "Transferring…" : success
+              ? "Transfer complete" : "Transfer"}
         </Button>
       </form>
 
