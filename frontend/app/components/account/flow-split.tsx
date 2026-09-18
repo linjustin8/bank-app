@@ -27,8 +27,8 @@ export function FlowSplit({ deposits, withdrawals }: FlowSplitProps) {
           </p>
         </div>
       </div>
-
-      {/* 2px surface gap separates the two fills — no stroke around either. */}
+      
+      {/* The line bar that displays the transaction splits */}
       <div
         className="mt-3 flex h-2.5 gap-0.5 overflow-hidden rounded-full"
         role="img"
