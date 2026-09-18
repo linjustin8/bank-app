@@ -1,9 +1,11 @@
-import { useState, type FormEvent } from "react"
+import { useRef, useState, type FormEvent } from "react"
+import { isAxiosError } from "axios"
 import { Link, useNavigate } from "react-router"
 
 import { Button } from "~/components/ui/button"
 import { useAccountData } from "~/hooks/use-account-data"
 import { formatCurrency } from "~/lib/account-data"
+import { useApi } from "~/hooks/use-api"
 
 export function meta() {
   return [{ title: "Transfer Money · G3 Banking" }]
@@ -11,11 +13,15 @@ export function meta() {
 
 export default function Transfer() {
   const navigate = useNavigate()
+  const { post } = useApi()
   const { accounts, message, accountLink } = useAccountData()
   const [fromAccountId, setFromAccountId] = useState("")
   const [toAccountId, setToAccountId] = useState("")
   const [amount, setAmount] = useState("")
   const [success, setSuccess] = useState(false)
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState("")
+  const submitting = useRef(false)
 
   if (!accounts) return <p role="status">{message}</p>
 
@@ -25,13 +31,30 @@ export default function Transfer() {
     fromAccountId !== toAccountId &&
     amount !== ""
 
-  // Front-end only for now: no backend call, just a mock confirmation + redirect.
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault()
-    if (!canTransfer) return
+    if (!canTransfer || submitting.current || success) return
 
-    setSuccess(true)
-    setTimeout(() => navigate(accountLink("/account_details")), 1500)
+    submitting.current = true
+    setPending(true)
+    setError("")
+    try {
+      await post("/api/accounts/transfer", {
+        fromAccountId: Number(fromAccountId),
+        toAccountId: Number(toAccountId),
+        amount,
+      })
+      setSuccess(true)
+      navigate(`/account_details?accountId=${fromAccountId}`)
+    } catch (error) {
+      const detail = isAxiosError(error) ? error.response?.data?.detail : null
+      setError(
+        typeof detail === "string" ? detail : "Unable to confirm the transfer. Check your balances before trying again."
+      )
+    } finally {
+      submitting.current = false
+      setPending(false)
+    }
   }
 
   return (
@@ -44,6 +67,7 @@ export default function Transfer() {
 
       <form
         onSubmit={handleSubmit}
+        aria-busy={pending}
         className="space-y-5 rounded-2xl border bg-blue-100 p-6 shadow-sm"
       >
         <div>
@@ -55,8 +79,14 @@ export default function Transfer() {
           </label>
           <select
             id="fromAccount"
+            required
+            disabled={pending || success}
             value={fromAccountId}
-            onChange={(event) => setFromAccountId(event.target.value)}
+            onChange={(event) => {
+              setFromAccountId(event.target.value)
+              if (event.target.value === toAccountId) setToAccountId("")
+              setError("")
+            }}
             className="mt-1.5 w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="" disabled>
@@ -80,6 +110,8 @@ export default function Transfer() {
           </label>
           <select
             id="toAccount"
+            required
+            disabled={pending || success}
             value={toAccountId}
             onChange={(event) => setToAccountId(event.target.value)}
             className="mt-1.5 w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
@@ -116,16 +148,24 @@ export default function Transfer() {
             <span className="text-sm text-muted-foreground">$</span>
             <input
               id="amount"
+              required
+              disabled={pending || success}
               type="number"
               min="0.01"
               step="0.01"
               placeholder="0.00"
               value={amount}
               onChange={(event) => setAmount(event.target.value)}
-              className="w-full bg-transparent py-2.5 pl-2 text-sm outline-none tabular-nums"
+              className="w-full [appearance:textfield] bg-transparent py-2.5 pl-2 text-sm tabular-nums outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             />
           </div>
         </div>
+
+        {error && (
+          <p role="alert" className="text-sm text-destructive">
+            {error}
+          </p>
+        )}
 
         {success && (
           <p className="text-xs font-medium text-green-600">
@@ -138,9 +178,10 @@ export default function Transfer() {
           variant="ghost"
           size="lg"
           className="w-full rounded-full border border-border bg-[#1d63e7]/20 py-3 text-lg text-black! shadow-none hover:bg-[#1d63e7]/20 hover:text-[#1d63e7]!"
-          disabled={!canTransfer || success}
+          disabled={!canTransfer || pending || success}
         >
-          {success ? "Transfer complete" : "Transfer"}
+          {pending ? "Transferring…" : success
+              ? "Transfer complete" : "Transfer"}
         </Button>
       </form>
 

@@ -16,9 +16,6 @@ export default function NavBar() {
         </Link>
 
         <div className="flex flex-wrap items-center gap-5 text-sm font-medium sm:gap-7">
-          <a href="#about" className="text-[#2a2a2a] hover:underline">
-            About
-          </a>
 
           <a href="/account_details" className="text-[#2a2a2a] hover:underline">
             Account
