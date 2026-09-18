@@ -1,5 +1,5 @@
 import { useAccountData } from "~/hooks/use-account-data"
-import { ArrowDownToLine, ArrowRight, ArrowUpFromLine, Receipt, TrendingUp } from "lucide-react"
+import { ArrowDownToLine, ArrowLeftRight, ArrowRight, ArrowUpFromLine, Receipt, TrendingUp } from "lucide-react"
 import { Link } from "react-router"
 
 import { FlowSplit } from "~/components/account/flow-split"
@@ -21,6 +21,12 @@ const ACTIONS = [
     to: "/withdraw",
     label: "Withdraw",
     icon: ArrowUpFromLine,
+    variant: "outline" as const,
+  },
+  {
+    to: "/transfer",
+    label: "Transfer",
+    icon: ArrowLeftRight,
     variant: "outline" as const,
   },
   {
