@@ -7,4 +7,5 @@ export default [
   route("account_details", "routes/account_details.tsx"),
   route("deposit", "routes/deposit.tsx"),
   route("withdraw", "routes/withdraw.tsx"),
+  route("transactions", "routes/transactions.tsx"),
 ] satisfies RouteConfig
