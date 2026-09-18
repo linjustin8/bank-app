@@ -1,8 +1,14 @@
 *.env
 .env
 
+# Frontend dependencies and build output
+node_modules/
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+
 __pycache__/
 *.pyc
 
-.venv
+.venv/
 .python-version
